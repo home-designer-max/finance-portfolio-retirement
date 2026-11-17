@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f6f1">
+<title>RetireWell — Retirement Planner</title>
+<style>
+:root{
+  --bg:#f7f6f1;--paper:#fffefa;--ink:#252923;--muted:#777c73;
+  --line:#e7e6de;--green:#496b54;--green2:#e9f0e8;--dark:#31593e;
+  --gold:#b18a4a;--soft:#f1f0e9;--red:#a75b50;
+  --shadow:0 12px 34px rgba(35,43,34,.055);--radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1120px;margin:auto;padding:24px 22px 60px}
+header{display:flex;align-items:center;justify-content:space-between;padding:8px 0 26px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.5px;font-size:19px}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:var(--dark);color:white;display:grid;place-items:center;font-size:17px}
+.header-note{font-size:12px;color:var(--muted)}
+.hero{padding:38px 0 28px;max-width:760px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:var(--green);font-weight:750}
+h1{font-size:clamp(32px,5vw,48px);letter-spacing:-1.8px;line-height:1.08;margin:12px 0}
+.hero p{color:var(--muted);font-size:15px;max-width:640px;margin:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:20px;align-items:start}
+.main-col,.side-col{display:grid;gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px}
+.card h2{font-size:17px;letter-spacing:-.35px;margin:0 0 4px}
+.card-head p,.sub{font-size:12px;color:var(--muted);margin:0}
+.step{font-size:10px;font-weight:750;letter-spacing:1px;color:var(--green);background:var(--green2);padding:6px 9px;border-radius:99px;white-space:nowrap}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:12px;font-weight:650;color:#51574f}
+input,select{width:100%;border:1px solid #dedfd6;border-radius:10px;background:#fff;padding:11px 12px;color:var(--ink);outline:none;min-height:43px}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(73,107,84,.1)}
+.hint{font-size:10px;color:var(--muted)}
+.unit-row{display:grid;grid-template-columns:1fr 105px;gap:8px}
+.segment{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
+.segment button{border:0;background:transparent;border-radius:8px;padding:7px 11px;font-size:11px;color:var(--muted)}
+.segment button.active{background:white;color:var(--ink);box-shadow:0 1px 4px #00000012;font-weight:700}
+.category-list{display:grid;gap:9px;margin-top:13px}
+.cat-row{display:grid;grid-template-columns:1fr minmax(110px,180px);gap:10px;align-items:center}
+.cat-row label{font-weight:550;color:#555c54}
+.cat-row input{padding:9px 10px;min-height:38px}
+.inline-note{background:#f5f5ef;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:11px;color:var(--muted);margin-top:13px}
+.checkline{display:flex;align-items:center;gap:9px;font-size:12px;color:#51574f}
+.checkline input{width:16px;min-height:16px;accent-color:var(--green)}
+.goal-block{border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:12px}
+.goal-title{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:13px;margin-bottom:11px}
+.goal-title span{color:var(--green);font-size:11px;font-weight:650}
+.child-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.primary{background:var(--dark);color:#fff;border:0;border-radius:11px;padding:12px 18px;font-weight:700;font-size:12px}
+.secondary{background:transparent;border:1px solid var(--line);border-radius:11px;padding:11px 15px;font-size:12px;color:var(--ink)}
+.results{position:sticky;top:16px}
+.result-top{background:var(--dark);color:white;border-radius:15px;padding:20px;margin-bottom:14px}
+.result-top .eyebrow{color:#c3d4c4}
+.result-top .big{font-size:clamp(28px,4vw,38px);letter-spacing:-1.3px;font-weight:760;margin:8px 0 2px;overflow-wrap:anywhere}
+.result-top p{font-size:11px;color:#d2ddd2;margin:0}
+.retirement-comparison{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding:11px 12px;border:1px solid rgba(255,255,255,.22);border-radius:11px;background:rgba(255,255,255,.08);font-size:11px}
+.retirement-comparison strong{font-size:14px;white-space:nowrap}
+.retirement-comparison .good{color:#c3e3c9!important}.retirement-comparison .warning{color:#ffd0c8!important}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.metric{background:#f5f5ef;border-radius:12px;padding:12px}
+.metric span{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}
+.metric strong{font-size:17px;letter-spacing:-.4px}
+.metric small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.breakdown{margin-top:17px}
+.breakdown h3{font-size:12px;margin:0 0 12px}
+.bar-row{display:grid;grid-template-columns:95px 1fr 65px;gap:8px;align-items:center;margin:10px 0;font-size:10px;color:var(--muted)}
+.track{height:7px;background:#ecece5;border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--green);border-radius:99px}
+.fill.gold{background:#b18a4a}.fill.gray{background:#9da49a}
+.result-line{display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+.result-line:last-child{border-bottom:0}
+.result-line span{color:var(--muted)}
+.result-line strong{text-align:right}
+.summary-table{width:100%;border-collapse:collapse;font-size:11px}
+.summary-table th,.summary-table td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.summary-table th{text-align:left;color:var(--muted);font-weight:550;padding-right:12px}
+.summary-table td{text-align:right;font-weight:650;overflow-wrap:anywhere}
+.summary-table tr:last-child th,.summary-table tr:last-child td{border-bottom:0}
+.summary-table .summary-message{text-align:left;font-weight:500}
+.warning{color:var(--red)!important}
+.good{color:var(--green)!important}
+canvas{width:100%;height:155px;display:block;margin-top:8px}
+.disclaimer{font-size:10px;color:var(--muted);line-height:1.6;margin-top:15px}
+.source{font-size:10px;color:var(--muted);margin-top:8px}
+.footer{font-size:10px;color:var(--muted);text-align:center;padding:26px 0 0}
+.hidden{display:none!important}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.results{position:static}.side-col{grid-row:1}.hero{padding-top:28px}}
+@media(max-width:520px){.shell{padding:15px 13px 40px}header{padding-bottom:18px}.header-note{display:none}.hero{padding:28px 2px 22px}h1{font-size:35px}.card{padding:17px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.cat-row{grid-template-columns:1fr 125px}.result-top{padding:18px}.metric strong{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div class="brand"><div class="brand-mark">R</div> retirewell</div>
+  <div class="header-note">A clearer picture of your financial future</div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Personal retirement planner</div>
+  <h1>Make room for the life<br>you want later.</h1>
+  <p>Build a retirement estimate around your lifestyle, family plans and big future goals. Adjust the assumptions and see what you may need to save each month.</p>
+</section>
+
+<div class="layout">
+<main class="main-col">
+  <section class="card">
+    <div class="card-head"><div><h2>01 — Your timeline</h2><p>Set the years your plan needs to cover.</p></div><span class="step">START HERE</span></div>
+    <div class="fields">
+      <div class="field"><label for="age">Your current age</label><input id="age" type="number" min="18" max="90" value="30"></div>
+      <div class="field"><label for="retireAge">Planned retirement age</label><input id="retireAge" type="number" min="19" max="100" value="60"></div>
+      <div class="field"><label for="lifeAge">Plan until age</label><input id="lifeAge" type="number" min="60" max="110" value="90"><span class="hint">A planning assumption, not a life expectancy prediction.</span></div>
+      <div class="field"><label for="currency">Currency</label><select id="currency"><option value="INR">Indian Rupee (₹)</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>02 — Household income</h2><p>Include reliable income coming into your household.</p></div><span class="step">INCOME</span></div>
+    <div class="fields">
+      <div class="field"><label for="income">Total income</label><input id="income" type="number" min="0" value="100000"></div>
+      <div class="field"><label for="incomePeriod">Income frequency</label><select id="incomePeriod"><option value="month">Per month</option><option value="year">Per year</option></select></div>
+      <div class="field full"><label for="otherIncome">Other regular monthly income (optional)</label><input id="otherIncome" type="number" min="0" value="0"><span class="hint">For example, rent or a regular pension. Don't include uncertain one-time amounts.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>03 — Current expenditure</h2><p>Use one total, or break spending into categories.</p></div><span class="step">LIFESTYLE</span></div>
+    <div class="segment" role="group" aria-label="Expense entry mode">
+      <button type="button" class="active" id="totalMode">One total</button>
+      <button type="button" id="categoryMode">By category</button>
+    </div>
+    <div id="totalExpenseWrap" class="fields" style="margin-top:14px">
+      <div class="field"><label for="expense">Total household expenditure</label><input id="expense" type="number" min="0" value="50000"></div>
+      <div class="field"><label for="expensePeriod">Expense frequency</label><select id="expensePeriod"><option value="month">Per month</option><option value="year">Per year</option></select></div>
+    </div>
+    <div id="categoryWrap" class="hidden">
+      <div class="category-list" id="categories">
+        <div class="cat-row"><label for="cat-home">Housing / rent</label><input id="cat-home" type="number" min="0" value="12000"></div>
+        <div class="cat-row"><label for="cat-food">Food & groceries</label><input id="cat-food" type="number" min="0" value="10000"></div>
+        <div class="cat-row"><label for="cat-bills">Utilities & bills</label><input id="cat-bills" type="number" min="0" value="4000"></div>
+        <div class="cat-row"><label for="cat-transport">Transport</label><input id="cat-transport" type="number" min="0" value="5000"></div>
+        <div class="cat-row"><label for="cat-health">Healthcare</label><input id="cat-health" type="number" min="0" value="3000"></div>
+        <div class="cat-row"><label for="cat-education">Education</label><input id="cat-education" type="number" min="0" value="5000"></div>
+        <div class="cat-row"><label for="cat-insurance">Insurance</label><input id="cat-insurance" type="number" min="0" value="3000"></div>
+        <div class="cat-row"><label for="cat-other">Other regular spending</label><input id="cat-other" type="number" min="0" value="8000"></div>
+      </div>
+      <div class="inline-note">Enter category amounts per month. If you add child education as a separate future goal below, avoid counting the same future cost twice.</div>
+    </div>
+    <div class="fields" style="margin-top:14px">
+      <div class="field"><label for="annualTrips">Trips / holidays per year (today's cost)</label><input id="annualTrips" type="number" min="0" value="60000"></div>
+      <div class="field"><label for="annualFestivals">Festivals / celebrations per year</label><input id="annualFestivals" type="number" min="0" value="30000"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>04 — Savings & assumptions</h2><p>These assumptions drive the projection. You can change them.</p></div><span class="step">PLANNING</span></div>
+    <div class="fields">
+      <div class="field"><label for="currentSavings">Current retirement savings (₹)</label><input id="currentSavings" type="number" min="0" value="800000"></div>
+      <div class="field"><label for="monthlyInvestment">Amount already investing monthly (₹)</label><input id="monthlyInvestment" type="number" min="0" value="10000"></div>
+      <div class="field"><label for="inflation">General annual inflation (%)</label><input id="inflation" type="number" min="-2" max="20" step=".01" value="6.09"></div>
+      <div class="field"><label for="educationInflation">Education cost inflation (%)</label><input id="educationInflation" type="number" min="0" max="25" step=".1" value="8"></div>
+      <div class="field"><label for="preReturn">Expected annual return before retirement (%)</label><input id="preReturn" type="number" min="0" max="25" step=".1" value="9"></div>
+      <div class="field"><label for="postReturn">Expected annual return during retirement (%)</label><input id="postReturn" type="number" min="0" max="20" step=".1" value="6"></div>
+    </div>
+    <div class="inline-note"><strong>About the inflation reference:</strong> 6.09% is the latest official India CPI reading available in this planner's research (October 2026, provisional), not a prediction. Your personal costs may rise faster or slower. Edit the assumptions to test different futures.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>05 — Family & education goals</h2><p>Estimate future education costs using each child's current age.</p></div><span class="step">FAMILY</span></div>
+    <label class="checkline"><input type="checkbox" id="hasChildren"> I want to include children's education</label>
+    <div id="childrenFields" class="hidden" style="margin-top:14px">
+      <div class="fields">
+        <div class="field"><label for="childAges">Children's current ages</label><input id="childAges" type="text" placeholder="For example: 4, 9"></div>
+        <div class="field"><label for="educationPathway">Education pathway</label>
+          <select id="educationPathway">
+            <option value="">Choose a cost range</option>
+            <option value="budget">Budget — school ₹7–10L; college ₹2–4.5L (total ₹9–14.5L)</option>
+            <option value="mainstream">Mainstream — school ₹15–30L; college ₹5–16L (total ₹20–46L)</option>
+            <option value="engineering">Engineering — school ₹15–30L; college ₹8–25L (total ₹23–55L)</option>
+            <option value="medical">Medical — school ₹15–30L; college ₹55L–₹1.4Cr+ (total ₹70L–₹1.7Cr+)</option>
+            <option value="premium">Premium / Global — school ₹60L–₹1.5Cr+; college ₹25–45L (total ₹85L–₹1.95Cr+)</option>
+          </select>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:8px">Pathway ranges are estimates supplied for this planner. The midpoint of each school and college range is used; costs above stated “+” amounts are not included.</div>
+      <div class="inline-note" id="childPreview" aria-live="polite">Choose a pathway and enter children's ages to estimate costs.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>06 — Big purchases</h2><p>Keep one-time goals separate from everyday retirement spending.</p></div><span class="step">LIFE GOALS</span></div>
+    <div class="goal-block">
+      <div class="goal-title">Build or buy a house <span>Optional goal</span></div>
+      <label class="checkline"><input type="checkbox" id="houseOn"> Include a house goal</label>
+      <div id="houseFields" class="fields hidden" style="margin-top:12px">
+        <div class="field"><label for="houseCost">Estimated cost today (₹)</label><input id="houseCost" type="number" min="0" value="5000000"></div>
+        <div class="field"><label for="houseYears">Years from now</label><input id="houseYears" type="number" min="0" max="60" value="10"></div>
+      </div>
+    </div>
+    <div class="goal-block">
+      <div class="goal-title">Buy a car <span>Optional goal</span></div>
+      <label class="checkline"><input type="checkbox" id="carOn"> Include a car goal</label>
+      <div id="carFields" class="fields hidden" style="margin-top:12px">
+        <div class="field"><label for="carCost">Estimated cost today (₹)</label><input id="carCost" type="number" min="0" value="1000000"></div>
+        <div class="field"><label for="carYears">Years from now</label><input id="carYears" type="number" min="0" max="60" value="5"></div>
+      </div>
+    </div>
+    <div class="inline-note">House and car prices are user-entered estimates, not live market quotes. The planner inflates these estimates using the general inflation assumption.</div>
+  </section>
+
+  <div class="actions">
+    <button type="button" class="primary" id="calculate">Calculate my retirement plan ↗</button>
+  </div>
+</main>
+
+<aside class="side-col">
+  <section class="card results">
+    <div class="card-head"><div><h2>Your calculated plan</h2><p>Estimates based on the values you enter.</p></div></div>
+    <div class="result-top">
+      <div class="eyebrow">Combined retirement + goals target</div>
+      <div class="big" id="corpus">₹ —</div>
+      <p id="corpusCaption">Enter or change a value to calculate your combined target.</p>
+      <div class="retirement-comparison" aria-live="polite">
+        <span>Projected retirement savings vs. target</span>
+        <strong id="retirementDifference">—</strong>
+      </div>
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><span>Additional monthly saving needed</span><strong id="monthlyTotal">₹ —</strong><small>After applying available surplus</small></div>
+      <div class="metric"><span>Retirement saving gap</span><strong id="monthlyRetire">₹ —</strong><small>Additional monthly amount</small></div>
+      <div class="metric"><span>Monthly spending at retirement</span><strong id="futureExpense">₹ —</strong><small>Inflation-adjusted estimate</small></div>
+      <div class="metric"><span>Years until retirement</span><strong id="yearsLeft">—</strong><small>Based on your timeline</small></div>
+    </div>
+    <div class="breakdown">
+      <h3>Monthly savings plan</h3>
+      <div class="result-line"><span>Retirement fund</span><strong id="retireLine">₹ —</strong></div>
+      <div class="result-line"><span>Projected retirement fund above target</span><strong id="retirementExcessLine">₹ —</strong></div>
+      <div class="result-line"><span>Potential reduction to monthly retirement investment</span><strong id="reductionLine">₹ —</strong></div>
+      <div class="result-line"><span>Children's education</span><strong id="childLine">₹ —</strong></div>
+      <div class="result-line"><span>House goal</span><strong id="houseLine">₹ —</strong></div>
+      <div class="result-line"><span>Car goal</span><strong id="carLine">₹ —</strong></div>
+      <div class="result-line"><span>Existing monthly investments</span><strong id="existingLine">₹ —</strong></div>
+      <div class="result-line"><span>Household income per month</span><strong id="incomeLine">₹ —</strong></div>
+      <div class="result-line"><span>Monthly surplus / shortfall</span><strong id="surplusLine">₹ —</strong></div>
+      <div class="result-line"><span>Monthly amount you could trim if saving your full surplus</span><strong id="monthlyTrimLine">₹ —</strong></div>
+    </div>
+    <div class="breakdown">
+      <h3>What makes up your retirement spending?</h3>
+      <div id="spendingBars"></div>
+    </div>
+    <div class="breakdown">
+      <h3>Retirement expense over time</h3>
+      <canvas id="projection" width="620" height="220" aria-label="Projected monthly retirement expense chart"></canvas>
+      <div class="source">Illustrative projection using your selected inflation assumption.</div>
+    </div>
+    <div class="breakdown" id="status" aria-live="polite">
+      <h3>Plan summary</h3>
+      <table class="summary-table">
+        <tbody>
+          <tr><th scope="row">Projected retirement savings</th><td id="statusProjected">—</td></tr>
+          <tr><th scope="row">Retirement fund target</th><td id="statusRetirementTarget">—</td></tr>
+          <tr><th scope="row">Combined target including goals</th><td id="statusCombinedTarget">—</td></tr>
+          <tr><th scope="row">Difference from retirement target</th><td id="statusRetirementDifference">—</td></tr>
+          <tr><th scope="row">Potential monthly reduction to retirement investment</th><td id="statusReduction">—</td></tr>
+          <tr><th scope="row">Additional monthly contribution needed</th><td id="statusAdditional">—</td></tr>
+          <tr><th scope="row">Total monthly saving planned</th><td id="statusTotalMonthly">—</td></tr>
+          <tr><th scope="row">Additional monthly saving needed after surplus</th><td id="statusAfterSurplus">—</td></tr>
+          <tr><th scope="row">Estimated monthly surplus / shortfall</th><td id="statusSurplus">—</td></tr>
+          <tr><th scope="row">Monthly amount you could trim if saving your full surplus</th><td id="statusTrim">—</td></tr>
+          <tr><th scope="row">Surplus compared with planned saving</th><td id="statusCapacity">—</td></tr>
+          <tr><th scope="row">Status</th><td id="statusMessage" class="summary-message">Your plan will appear here after you enter or change a value.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="disclaimer">This tool provides educational estimates, not investment, tax or financial advice. Returns and inflation are uncertain. It assumes smooth annual returns and does not model taxes, fees, market volatility, pensions, insurance payouts or changing income. Review assumptions and consult a qualified financial professional before making decisions.</div>
+  </section>
+</aside>
+</div>
+<div class="footer">retirewell · Plan thoughtfully. Review regularly.</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => "₹" + Math.round(Math.max(0,Number.isFinite(n)?n:0)).toLocaleString("en-IN");
+const signedMoney = n => (n<0?"-":"")+"₹"+Math.round(Math.abs(Number.isFinite(n)?n:0)).toLocaleString("en-IN");
+const num = id => Math.max(0, Number($(id).value) || 0);
+const pct = id => Number($(id).value) || 0;
+let expenseMode = "total";
+
+function toggleMode(mode){
+  expenseMode=mode;
+  $("totalMode").classList.toggle("active",mode==="total");
+  $("categoryMode").classList.toggle("active",mode==="category");
+  $("totalExpenseWrap").classList.toggle("hidden",mode!=="total");
+  $("categoryWrap").classList.toggle("hidden",mode!=="category");
+  calculate();
+}
+$("totalMode").addEventListener("click",()=>toggleMode("total"));
+$("categoryMode").addEventListener("click",()=>toggleMode("category"));
+function bindOptionalSection(checkboxId,fieldsId){
+  const checkbox=$(checkboxId),fields=$(fieldsId);
+  checkbox.addEventListener("change",()=>{
+    fields.classList.toggle("hidden",!checkbox.checked);
+    calculate();
+  });
+}
+bindOptionalSection("hasChildren","childrenFields");
+bindOptionalSection("houseOn","houseFields");
+bindOptionalSection("carOn","carFields");
+
+function monthlyValue(value,period){return period==="year"?value/12:value}
+function monthlyExpenses(){
+  if(expenseMode==="total") return monthlyValue(num("expense"),$("expensePeriod").value);
+  return ["cat-home","cat-food","cat-bills","cat-transport","cat-health","cat-education","cat-insurance","cat-other"].reduce((s,id)=>s+num(id),0);
+}
+function monthlyIncome(){
+  return monthlyValue(num("income"),$("incomePeriod").value)+num("otherIncome");
+}
+function sipForGoal(target,years,annualReturn){
+  if(target<=0)return 0;
+  if(years<=0)return target;
+  const months=Math.max(1,Math.round(years*12));
+  const r=Math.pow(1+annualReturn/100,1/12)-1;
+  if(Math.abs(r)<1e-9)return target/months;
+  const factor=(Math.pow(1+r,months)-1)/r;
+  return target/factor;
+}
+function retirementCorpus(monthlyAtRetirement,yearsRetired,inflation,postReturn){
+  const annualSpend=monthlyAtRetirement*12;
+  const real=(1+postReturn/100)/(1+inflation/100)-1;
+  if(Math.abs(real)<1e-8)return annualSpend*yearsRetired;
+  return annualSpend*(1-Math.pow(1+real,-yearsRetired))/real;
+}
+function fmtYears(y){return y+" yr"+(y===1?"":"s")}
+const educationPathways={
+  budget:{school:[700000,1000000],college:[200000,450000]},
+  mainstream:{school:[1500000,3000000],college:[500000,1600000]},
+  engineering:{school:[1500000,3000000],college:[800000,2500000]},
+  medical:{school:[1500000,3000000],college:[5500000,14000000]},
+  premium:{school:[6000000,15000000],college:[2500000,4500000]}
+};
+function rangeMidpoint(range){return (range[0]+range[1])/2}
+function getChildGoals(){
+  if(!$("hasChildren").checked)return {monthly:0,total:0,details:[]};
+  const ages=$("childAges").value.split(",").map(x=>x.trim()).filter(Boolean).map(Number).filter(x=>Number.isFinite(x)&&x>=0&&x<=23);
+  const pathway=educationPathways[$("educationPathway").value];
+  if(!pathway){
+    $("childPreview").textContent="Choose an education pathway to estimate costs.";
+    return {monthly:0,total:0,details:[]};
+  }
+  const schoolTotal=rangeMidpoint(pathway.school);
+  const collegeTotal=rangeMidpoint(pathway.college);
+  const inf=pct("educationInflation");
+  let monthly=0,total=0;
+  const details=ages.map(age=>{
+    const schoolYears=age<18?Math.ceil(18-age):0;
+    const yearsToCollege=age<18?schoolYears:0;
+    const collegeYears=Math.max(0,Math.ceil(23-age)-yearsToCollege);
+    let schoolFuture=0,collegeFuture=0,contribution=0;
+    for(let year=1;year<=schoolYears;year++){
+      const years=year;
+      const future=schoolTotal/18*Math.pow(1+inf/100,years);
+      schoolFuture+=future;
+      contribution+=sipForGoal(future,years,pct("preReturn"));
+    }
+    for(let year=1;year<=collegeYears;year++){
+      const years=yearsToCollege+year;
+      const future=collegeTotal/5*Math.pow(1+inf/100,years);
+      collegeFuture+=future;
+      contribution+=sipForGoal(future,years,pct("preReturn"));
+    }
+    const future=schoolFuture+collegeFuture;
+    monthly+=contribution; total+=future;
+    return {age,schoolYears,collegeYears,schoolFuture,collegeFuture,future,monthly:contribution};
+  });
+  $("childPreview").textContent=ages.length
+    ? `${ages.length} child(ren) · selected ${$("educationPathway").selectedOptions[0].textContent.split(" — ")[0]} pathway. Estimated combined future cost ${money(total)}. `+details.map((d,i)=>`Child ${i+1} (age ${d.age}): school ${money(d.schoolFuture)} over ${d.schoolYears} years; college ${money(d.collegeFuture)} over ${d.collegeYears} years`).join(" · ")
+    : "Enter ages separated by commas, such as 4, 9. Each child's school and college costs are estimated separately.";
+  return {monthly,total,details};
+}
+function goalData(on,costId,yearsId){
+  if(!$(on).checked)return {monthly:0,future:0,years:0};
+  const years=num(yearsId), future=num(costId)*Math.pow(1+pct("inflation")/100,years);
+  return {monthly:sipForGoal(future,years,pct("preReturn")),future,years};
+}
+function drawChart(values){
+  const c=$("projection"),ctx=c.getContext("2d");
+  const w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
+  const pad={l:42,r:12,t:12,b:28};
+  const max=Math.max(...values,1)*1.12;
+  ctx.strokeStyle="#e8e9e1";ctx.lineWidth=1;
+  for(let i=0;i<4;i++){let y=pad.t+(h-pad.t-pad.b)*i/3;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();}
+  ctx.fillStyle="#858b80";ctx.font="11px system-ui";
+  ctx.fillText("₹"+Math.round(max).toLocaleString("en-IN"),2,pad.t+4);
+  ctx.fillText("₹0",10,h-pad.b+4);
+  const pts=values.map((v,i)=>({x:pad.l+(w-pad.l-pad.r)*(i/(values.length-1||1)),y:pad.t+(h-pad.t-pad.b)*(1-v/max)}));
+  ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle="#496b54";ctx.lineWidth=3;ctx.stroke();
+  ctx.lineTo(pts[pts.length-1].x,h-pad.b);ctx.lineTo(pts[0].x,h-pad.b);ctx.closePath();
+  ctx.fillStyle="rgba(73,107,84,.10)";ctx.fill();
+  ctx.fillStyle="#858b80";ctx.fillText("Now",pad.l,h-7);ctx.fillText("Retirement",w-78,h-7);
+}
+function clearResults(message){
+  ["corpus","monthlyTotal","monthlyRetire","futureExpense","retireLine","retirementExcessLine","reductionLine","childLine","houseLine","carLine","existingLine","incomeLine","surplusLine","monthlyTrimLine"].forEach(id=>$(id).textContent="₹ —");
+  ["statusProjected","statusRetirementTarget","statusCombinedTarget","statusRetirementDifference","statusReduction","statusAdditional","statusTotalMonthly","statusAfterSurplus","statusSurplus","statusTrim","statusCapacity"].forEach(id=>$(id).textContent="—");
+  $("statusMessage").textContent=message;
+  $("statusMessage").className="summary-message warning";
+  $("retirementDifference").textContent="—";
+  $("retirementDifference").className="";
+  $("yearsLeft").textContent="—";
+  $("corpusCaption").textContent="Correct the values below to see your combined target.";
+  $("surplusLine").className="";
+  $("spendingBars").innerHTML="";
+  drawChart([0,0]);
+}
+function calculate(){
+  const invalidInput=Array.from(document.querySelectorAll('input[type="number"]')).find(el=>!el.closest(".hidden")&&!el.validity.valid);
+  if(invalidInput){
+    clearResults(`${invalidInput.labels[0]?.textContent || "This value"}: ${invalidInput.validationMessage}`);
+    return false;
+  }
+  const age=num("age"),retire=num("retireAge"),life=num("lifeAge");
+  if(age<18||retire<=age||life<=retire){
+    clearResults("Please check your ages: retirement age must be above current age, and your plan age must be above retirement age.");
+    return false;
+  }
+  const years=retire-age,retiredYears=life-retire;
+  const inf=pct("inflation"),pre=pct("preReturn"),post=pct("postReturn");
+  const baseMonthly=monthlyExpenses();
+  const annualExtras=(num("annualTrips")+num("annualFestivals"))/12;
+  const currentMonthlySpend=baseMonthly+annualExtras;
+  const retirementMonthly=currentMonthlySpend*Math.pow(1+inf/100,years);
+  const corpus=retirementCorpus(retirementMonthly,retiredYears,inf,post);
+  const currentSavings=num("currentSavings");
+  const monthlyAlready=num("monthlyInvestment");
+  const monthlyRate=Math.pow(1+pre/100,1/12)-1;
+  const months=years*12;
+  const futureSavings=currentSavings*Math.pow(1+monthlyRate,months);
+  const contributionFactor=Math.abs(monthlyRate)<1e-9?months:(Math.pow(1+monthlyRate,months)-1)/monthlyRate;
+  const futureExistingContrib=monthlyAlready*contributionFactor;
+  const projectedAtRetirement=futureSavings+futureExistingContrib;
+  const gap=Math.max(0,corpus-projectedAtRetirement);
+  const retirementExcess=Math.max(0,projectedAtRetirement-corpus);
+  const retirementDifference=projectedAtRetirement-corpus;
+  const reducibleMonthlyInvestment=Math.min(monthlyAlready,retirementExcess/contributionFactor);
+  const retireMonthlyNeed=gap>0?sipForGoal(gap,years,pre):0;
+  const children=getChildGoals();
+  const house=goalData("houseOn","houseCost","houseYears");
+  const car=goalData("carOn","carCost","carYears");
+  const combinedTarget=corpus+children.total+house.future+car.future;
+  const totalGoalMonthly=children.monthly+house.monthly+car.monthly;
+  const totalRequired=retireMonthlyNeed+totalGoalMonthly;
+  const totalMonthlyPlan=totalRequired+monthlyAlready;
+  const income=monthlyIncome(),surplus=income-currentMonthlySpend;
+  const monthlyNeedAfterSurplus=Math.max(0,totalMonthlyPlan-Math.max(0,surplus));
+  const monthlyTrim=Math.max(0,surplus-totalMonthlyPlan);
+  $("corpus").textContent=money(combinedTarget);
+  $("corpusCaption").textContent=`Includes ${money(corpus)} for retirement at age ${retire}, plus ${money(children.total+house.future+car.future)} for education and purchases at their goal dates.`;
+  const retirementDifferenceText=retirementDifference===0?"₹0":`${retirementDifference>0?"+":"-"}${money(Math.abs(retirementDifference))}`;
+  $("retirementDifference").textContent=retirementDifferenceText;
+  $("retirementDifference").className=retirementDifference>0?"good":retirementDifference<0?"warning":"";
+  $("monthlyTotal").textContent=money(monthlyNeedAfterSurplus);
+  $("monthlyRetire").textContent=money(retireMonthlyNeed);
+  $("futureExpense").textContent=money(retirementMonthly);
+  $("yearsLeft").textContent=years;
+  $("retireLine").textContent=money(retireMonthlyNeed);
+  $("retirementExcessLine").textContent=money(retirementExcess);
+  $("reductionLine").textContent=money(reducibleMonthlyInvestment)+"/month";
+  $("childLine").textContent=money(children.monthly)+(children.total?` · ${money(children.total)} future cost`:"");
+  $("houseLine").textContent=money(house.monthly)+(house.future?` · ${money(house.future)} target`:"");
+  $("carLine").textContent=money(car.monthly)+(car.future?` · ${money(car.future)} target`:"");
+  $("existingLine").textContent=money(monthlyAlready);
+  $("incomeLine").textContent=money(income);
+  $("surplusLine").textContent=signedMoney(surplus);
+  $("monthlyTrimLine").textContent=money(monthlyTrim)+"/month";
+  $("surplusLine").className=surplus>=totalMonthlyPlan?"good":"warning";
+  $("statusProjected").textContent=`${money(projectedAtRetirement)} at age ${retire}`;
+  $("statusRetirementTarget").textContent=money(corpus);
+  $("statusCombinedTarget").textContent=money(combinedTarget);
+  $("statusRetirementDifference").textContent=retirementDifferenceText;
+  $("statusRetirementDifference").className=retirementDifference>0?"good":retirementDifference<0?"warning":"";
+  $("statusReduction").textContent=money(reducibleMonthlyInvestment)+"/month";
+  $("statusAdditional").textContent=money(totalRequired)+"/month";
+  $("statusTotalMonthly").textContent=money(totalMonthlyPlan)+"/month";
+  $("statusAfterSurplus").textContent=money(monthlyNeedAfterSurplus)+"/month";
+  $("statusSurplus").textContent=signedMoney(surplus)+"/month";
+  $("statusTrim").textContent=money(monthlyTrim)+"/month";
+  $("statusCapacity").textContent=surplus>totalMonthlyPlan
+    ? `₹${Math.round(surplus-totalMonthlyPlan).toLocaleString("en-IN")} above plan`
+    : surplus===totalMonthlyPlan
+      ? "Matches plan"
+      : `₹${Math.round(totalMonthlyPlan-surplus).toLocaleString("en-IN")} below plan`;
+  $("statusCapacity").className=surplus>=totalMonthlyPlan?"good":"warning";
+  $("statusMessage").textContent=surplus>totalMonthlyPlan
+    ? "Surplus is above the planned saving. If you save your full surplus, you could trim the amount shown and still meet your targets."
+    : surplus===totalMonthlyPlan
+      ? "Estimated surplus matches the planned saving."
+      : `After applying available surplus, ${money(monthlyNeedAfterSurplus)} more per month is needed to meet the plan. Consider revisiting the timeline, goals or assumptions.`;
+  $("statusMessage").className="summary-message";
+  const labels=expenseMode==="category"
+    ? [["Housing",num("cat-home")],["Food",num("cat-food")],["Bills",num("cat-bills")],["Transport",num("cat-transport")],["Healthcare",num("cat-health")],["Education",num("cat-education")],["Insurance",num("cat-insurance")],["Other",num("cat-other")],["Trips + festivals",annualExtras]]
+    : [["Regular expenses",baseMonthly],["Trips + festivals",annualExtras]];
+  const total=labels.reduce((s,x)=>s+x[1],0)||1;
+  $("spendingBars").innerHTML=labels.map((x,i)=>`<div class="bar-row"><span>${x[0]}</span><div class="track"><div class="fill ${i===1?"gold":i===2?"gray":""}" style="width:${Math.max(0,Math.min(100,x[1]/total*100))}%"></div></div><strong>${Math.round(x[1]/total*100)}%</strong></div>`).join("");
+  const vals=[];for(let i=0;i<=5;i++){vals.push(currentMonthlySpend*Math.pow(1+inf/100,years*i/5));}drawChart(vals);
+  return true;
+}
+const calculateButton=$("calculate");
+const calculateButtonLabel=calculateButton.textContent;
+let calculateFeedbackTimer;
+calculateButton.addEventListener("click",()=>{
+  const calculated=calculate();
+  calculateButton.textContent=calculated?"Calculated!":"Check your inputs";
+  window.clearTimeout(calculateFeedbackTimer);
+  calculateFeedbackTimer=window.setTimeout(()=>{calculateButton.textContent=calculateButtonLabel},3000);
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+function handlePlannerInput(event){
+  if(event.target instanceof HTMLSelectElement||(event.target instanceof HTMLInputElement&&event.target.type!=="checkbox"))calculate();
+}
+document.addEventListener("input",handlePlannerInput);
+document.addEventListener("change",handlePlannerInput);
+</script>
+</body>
+</html>
